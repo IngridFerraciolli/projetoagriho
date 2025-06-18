@@ -1,24 +1,126 @@
-# Compiled class file
-*.class
+let galinhaX;
+let galinhaTamanho = 40;
+let milhos = [];
+let obstaculos = [];
+let pontos = 0;
+let gameOver = false;
+let velMulti = 1;
+let tUltAumento = 0;
+let velGalinha = 5;
+let tUltGalinha = 0;
 
-# Log file
-*.log
+function setup() {
+  criarCena();
+}
 
-# BlueJ files
-*.ctxt
+function draw() {
+  rodarJogo();
+}
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+function criarCena() {
+  createCanvas(400, 600);
+  textAlign(CENTER, CENTER);
+  galinhaX = width / 2;
+  tUltAumento = millis();
+  tUltGalinha = millis();
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+  for (let i = 0; i < 3; i++) {
+    milhos.push(new Item('milho'));
+  }
+  for (let i = 0; i < 2; i++) {
+    obstaculos.push(new Item('obstaculo'));
+  }
+}
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+function rodarJogo() {
+  background(180, 230, 180);
+
+  if (!gameOver) {
+    // tratores
+    if (millis() - tUltAumento >= 10000) {
+      velMulti += 0.5;
+      tUltAumento = millis();
+    }
+
+    // Vel da galinha
+    if (millis() - tUltGalinha >= 13000) {
+      velGalinha += 1;
+      tUltGalinha = millis();
+    }
+
+    // Galinha andando
+    if (keyIsDown(LEFT_ARROW)) {
+      galinhaX -= velGalinha;
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+      galinhaX += velGalinha;
+    }
+    galinhaX = constrain(galinhaX, galinhaTamanho / 2, width - galinhaTamanho / 2);
+
+    textSize(32);
+    text('🐔', galinhaX, height - 40);
+
+    // Milhos
+    for (let milho of milhos) {
+      milho.atualiza();
+      milho.mostra();
+      if (milho.colidiuCom(galinhaX, height - 40)) {
+        pontos++;
+        milho.recomeca();
+      }
+    }
+
+    // Obstáculos
+    for (let obs of obstaculos) {
+      obs.atualiza();
+      obs.mostra();
+      if (obs.colidiuCom(galinhaX, height - 40)) {
+        gameOver = true;
+      }
+    }
+
+    fill(0);
+    textSize(20);
+    textAlign(LEFT);
+    text("🌽 Pontos: " + pontos, 10, 25);
+  } else {
+    fill(0);
+    textSize(32);
+    textAlign(CENTER);
+    text("💥 Fim de Jogo!", width / 2, height / 2);
+    text("🌽 Pontos: " + pontos, width / 2, height / 2 + 40);
+  }
+}
+
+class Item {
+  constructor(tipo) {
+    this.tipo = tipo;
+    this.recomeca();
+    this.size = 30;
+  }
+
+  recomeca() {
+    this.x = random(20, width - 20);
+    this.y = random(-300, -20);
+    this.baseVel = random(2, 4);
+  }
+
+  atualiza() {
+    if (frameCount % 2 === 0) {
+      this.y += this.baseVel * velMulti;
+      if (this.y > height) {
+        this.recomeca();
+      }
+    }
+  }
+
+  mostra() {
+    textSize(32);
+    text(this.tipo === 'milho' ? '🌽' : '🚜', this.x, this.y);
+  }
+
+  colidiuCom(px, py) {
+    let d = dist(px, py, this.x, this.y);
+    return d < (this.size / 2 + galinhaTamanho / 2);
+  }
+}
