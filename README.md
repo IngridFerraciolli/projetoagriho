@@ -1,4 +1,4 @@
-# projetoagriho
+# Projeto Agrinho
 Projeto do Agrinho - Ingrid Ferraciolli
 
 O meu jogo é bem simples. Você é uma galinha que tem que pegar os milhos e desviar dos tratores. Se você pegar milhos, você ganha um ponto, já se tocar em um trator, perde.
